@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+    <h1 class="mb-3 text-center">Welcome, {{ user.username }}!</h1>
+
+    <h3>All Channels</h3>
+    <ul>
+        {% for channel in channels %}
+            <li><a class="link" href="{% url 'main:channel_detail_without_date' channel.id %}">{{ channel.name }}</a></li>
+        {% endfor %}
+    </ul>
+   <a class="btn btn-primary mb-5" href="{% url 'main:channel_create'%}">Add Channel</a>
+
+    <h3>All Shows</h3>
+    <ul>
+        {% for show in shows %}
+            <li>
+                <a class="link" href="{% url 'main:tvshow_detail' show.id %}">{{ show.name }}</a>
+                {% if show.category %}
+                    <span class="category-label mx-2">{{ show.get_category_full }}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <a class="btn btn-primary mb-5" href="{% url 'main:tvshow_create'%}">Add Show</a>
+
+<h3>All Channel Show Times</h3>
+<a href="{% url 'main:showtime_create' %}" class="btn btn-primary mb-3">Add Channel Show Time</a>
+<ul>
+    {% for cst in channel_showtimes %}
+        <li class="mb-2">
+            {{ cst.channel.name }} - {{ cst.show.name }}:
+            <span class="fw-bold">   {{ cst.start_time|date:"dM, Y H:i" }} - {{ cst.get_end_time|date:"dM, Y H:i" }}</span>
+            <a href="{% url 'main:showtime_update' cst.id %}" class="btn btn-warning mx-3">Edit</a>
+            <a href="{% url 'main:showtime_delete' cst.id %}" class="btn btn-danger" onclick="return confirmDelete();">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+
+</div>
+{% endblock %}
+{% block afterscripts %}
+<script>
+   function confirmDelete() {
+       return confirm('Are you sure you want to delete this?');
+   }
+</script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container my-3">
+        <div class="card card-detail p-4 text-center">
+            <img class="mb-3 mx-auto" style="width: 200px;" src="{{ channel.image.url }}" alt="{{ channel.name }}">
+            <h2>{{ channel.name }}</h2>
+            <p class="mb-4">{{ channel.description }}</p>
+
+            {% if user.is_authenticated %}
+                <div class="mb-4">
+                    <a href="{% url 'main:channel_update' channel.id %}" class="btn btn-warning">Edit Channel</a>
+                    <a href="{% url 'main:channel_delete' channel.id %}" class="btn btn-danger" onclick="return confirmDelete();">Delete Channel</a>
+                </div>
+            {% endif %}
+
+       <h2 class="mb-3">Shows for the upcoming week:</h2>
+
+            {% for day, shows in shows_by_day.items %}
+                <h3>{{ day|date:"l, d M" }}</h3>
+                <ul style="list-style: none;">
+                    {% for showtime in shows %}
+                        <li>
+                            <a class="link" href="{% url 'main:tvshow_detail' showtime.show.id %}">{{ showtime.show.name }}</a>
+                            <p class="fw-bold fs-18">{{ showtime.start_time|date:"H:i" }} - {{ showtime.get_end_time|date:"H:i" }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% empty %}
+                <p>No shows scheduled for the upcoming week.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block afterscripts %}
+<script>
+   function confirmDelete() {
+       return confirm('Are you sure you want to delete this channel?');
+   }
+</script>
+{% endblock %}

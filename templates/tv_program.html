@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container py-4">
+        <div class="d-flex justify-content-between mb-4">
+            <h2>TV Program</h2>
+            <form class="d-flex gap-4 align-items-center" method="GET" action="">
+                <div class="d-flex gap-3 align-items-center">
+                    <label class="form-label mb-0" for="sort" style="text-wrap: nowrap;">Sort by:</label>
+                    <select class="custom-control" name="sort" id="sort">
+                        <option value="channels" {% if form.sort == 'channels' %}selected{% endif %}>Channels</option>
+                        <option value="time" {% if form.sort == 'time' %}selected{% endif %}>Time</option>
+                    </select>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <label class="form-label mb-0" for="start_date" style="text-wrap: nowrap;">Select day:</label>
+                    <input class="custom-control" type="date" id="start_date" name="start_date"
+                           value="{{ start_date }}">
+                </div>
+                <button class="btn btn-outline-primary" type="submit">Filter</button>
+            </form>
+        </div>
+        {% if request.GET.sort == 'channels' %}
+            {% if channel_data %}
+            <div class="channels-grid">
+                {% for channel, shows in channel_data.items %}
+                    <div class="card card-channel p-3 d-flex flex-column gap-3">
+                        <h2 class="text-center">{{ channel }}</h2>
+                        <img src="{{ channel.image.url }}" class="d-block m-auto" style="max-width: 100px;" alt="">
+                        <ul class="p-0 m-0 d-flex flex-column gap-2">
+                            {% for show in shows %}
+                                <li class="d-flex justify-content-between align-items-center">
+                                    <span class="time fw-bold">{{ show.start_time|date:"H:i" }} - {{ show.end_time|date:"H:i" }}</span>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <a class="link" href="{% url 'main:tvshow_detail' show.show_id %}">{{ show.show }}</a>
+                                        {% if show.show_category%}
+                                            <span class="category-label">{{ show.show_category }}</span>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <a class="btn btn-outline-primary w-100" href="{{ channel_detail_url }}">See more</a>
+                    </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                <h4 class="text-center mt-4">No shows on this day</h4>
+            {% endif %}
+        {% elif request.GET.sort == 'time' %}
+            {% if channel_showtimes %}
+            <ul>
+                {% for cst in channel_showtimes %}
+                    <li>
+                        <div class="d-flex align-items-center gap-3">
+                            <a class="link" href="{% url 'main:tvshow_detail' cst.show_id %}">{{ cst.show.name }}</a>
+                            <span class="category-label">{{ cst.show.category }}</span>
+                            <span class="fw-bold fs-18">{{ cst.start_time|date:"H:i" }} - {{ cst.get_end_time|date:"H:i" }}</span>
+                            <a class="link" href="{{ channel_detail_url }}">({{ cst.channel.name }})</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+                <h4 class="text-center mt-4">No shows on this day</h4>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
